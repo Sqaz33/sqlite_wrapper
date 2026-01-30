@@ -85,15 +85,14 @@ void DB::createTable(
     auto rows = con_.exec(stm.str());
 }
 
-
 void DB::addRow(
-    const std::string& tableName,
+    const std::string& table,
     const std::vector<std::string>& columns,
     const std::vector<std::string>& values)
 {
     std::stringstream stm;
     stm << "INSERT INTO ";
-    stm << tableName;
+    stm << table;
 
     stm << " (";
     std::size_t idx = 0;

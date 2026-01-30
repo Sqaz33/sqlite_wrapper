@@ -30,8 +30,6 @@ private:
 } // namespace detail__
 
 namespace sqlite3_wrapper {
-// TODO: тип столбца (с not null, primary key ...)
-// TODO: addRow...
 class DB {
 public:
     DB(const std::filesystem::path& path);
@@ -42,10 +40,22 @@ public:
         const std::pair<std::string, std::string>& primaryKey,  
         const std::vector<std::pair<std::string, std::string>>& entries);
 
+    // template <class ... T>
+    // std::vector<std::tuple<T...>>
+    // getSpesificRows(
+    //     const std::string& table, 
+    //     const std::vector<std::pair<std::string, std::string>>& where)
+    // {
+    //     std::stringstream stm;
+    //     stm << "SELECT * FROM ";
+    //     stm << name;
+    //     stm << "";
+    // }
+
     template <class ... T>
     std::vector<std::tuple<T...>> 
-    getAllRows(const std::string& tableName) {
-        auto rows = con_.exec("select * from " + tableName);
+    getAllRows(const std::string& table) {
+        auto rows = con_.exec("SELECT * FROM " + table);
         std::vector<std::tuple<T...>> res;
         res.reserve(rows.size());
         for (auto&& row : rows) {
@@ -55,7 +65,7 @@ public:
     }
 
     void addRow(
-        const std::string& tableName,
+        const std::string& table,
         const std::vector<std::string>& columns,
         const std::vector<std::string>& values);
         
