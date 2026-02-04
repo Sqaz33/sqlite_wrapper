@@ -6,30 +6,10 @@
 #include <vector>
 #include <tuple>
 
-#include <sqlite3.h>
-
-namespace detail__ {
-class DBCon {
-public:
-    DBCon(const std::filesystem::path& path);
-
-    ~DBCon();
-
-    DBCon(const DBCon&) = delete;
-    DBCon& operator=(const DBCon&) = delete;
- 
-public:
-    std::vector<
-        std::vector<std::pair<std::string, std::string>>>
-    exec(const std::string& stm);
-
-private:    
-    sqlite3* con_;  
-};
-
-} // namespace detail__
+#include "db_con.hpp"
 
 namespace sqlite3_wrapper {
+
 class DB {
 public:
     DB(const std::filesystem::path& path);
@@ -59,7 +39,7 @@ public:
         std::vector<std::tuple<T...>> res;
         res.reserve(rows.size());
         for (auto&& row : rows) {
-            res.push_back(rows_<T...>(row, 0));
+            res.push_back(row_<T...>(row, 0));
         }
         return res;
     }
@@ -71,14 +51,12 @@ public:
         
 private:    
     template <class T>
-    std::tuple<T> rows_(
-        const std::vector<
-            std::pair<
-                std::string, std::string>>& rows, 
+    std::tuple<T> row_(
+        const std::vector<std::string>& rows, 
         int idx
     ) 
     {
-        auto&& [_, val] = rows[idx];
+        auto&& val = rows[idx];
         if constexpr (std::is_same_v<T, int>) {
             return std::tuple<int>(std::stoi(val));
         } else if constexpr (std::is_same_v<T, std::string>)  {
@@ -90,15 +68,13 @@ private:
 
     template <class T, class ... U>
     requires (sizeof...(U) > 0)
-    std::tuple<T, U...> rows_(
-        const std::vector<
-            std::pair<
-                std::string, std::string>>& rows, 
+    std::tuple<T, U...> row_(
+        const std::vector<std::string>& rows, 
         int idx
     ) 
     {   
-        auto r1 = rows_<T>(rows, idx++);
-        auto r2 = rows_<U...>(rows, idx);
+        auto r1 = row_<T>(rows, idx++);
+        auto r2 = row_<U...>(rows, idx);
         return std::tuple_cat(std::move(r1), 
                               std::move(r2));
     }
