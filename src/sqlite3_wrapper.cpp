@@ -40,6 +40,7 @@ DBCon::~DBCon() {
 std::vector<
     std::vector<std::pair<std::string, std::string>>>
 DBCon::exec(const std::string& stm) {    
+    rows.clear();
     char* errMsg = nullptr;
     int ok = sqlite3_exec(
             con_, stm.c_str(), callback, nullptr, &errMsg);
