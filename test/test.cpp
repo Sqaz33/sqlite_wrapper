@@ -69,3 +69,38 @@ TEST(GettingValue, DefaultGetting) {
         ASSERT_FALSE(true) << "Unknown error";
     }
 }
+
+
+TEST(GettingValue, GettingSpecificRow) {
+    clearDB();
+    sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);
+
+    std::string table = "table1";
+    std::string name = "name";
+    std::string value = "value";
+
+    std::string expect1 = "Ivan";
+    int expect2 = 10;
+
+    
+    db.createTable(table, {std::string("id"), std::string("INTEGER")},
+                   {{name, std::string("TEXT")}, {value, std::string("INTEGER")}});
+    db.addRow("table1", {name, value}, {expect1, std::to_string(expect2)});
+
+    try {
+        auto res = db.getSpesificRows<int, std::string, int>(
+            table, {{name, expect1}, {value, std::to_string(expect2)}});
+        ASSERT_EQ(res.size(), 1);
+        
+        auto&& [_, actual1, actual2] = res[0];
+
+        EXPECT_EQ(actual1, expect1);
+        EXPECT_EQ(actual2, expect2);
+
+    } catch (const std::exception& e) {
+        ASSERT_FALSE(true) << e.what();
+    } catch (...) {
+        ASSERT_FALSE(true) << "Unknown error";
+    }
+    
+}

@@ -5,6 +5,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <format>
 
 #include "db_con.hpp"
 
@@ -20,17 +21,33 @@ class DB {
         const std::pair<std::string, std::string>& primaryKey,
         const std::vector<std::pair<std::string, std::string>>& entries);
 
-    // template <class ... T>
-    // std::vector<std::tuple<T...>>
-    // getSpesificRows(
-    //     const std::string& table,
-    //     const std::vector<std::pair<std::string, std::string>>& where)
-    // {
-    //     std::stringstream stm;
-    //     stm << "SELECT * FROM ";
-    //     stm << name;
-    //     stm << "";
-    // }
+    template <class ... T>
+    std::vector<std::tuple<T...>>
+    getSpesificRows(
+        const std::string& table,
+        const std::vector<std::pair<std::string, std::string>>& whereAnd)
+    {
+        std::stringstream stm;
+        stm << "SELECT * FROM ";
+        stm << table;
+
+        stm << " WHERE ";
+        std::size_t idx = 0;
+        for (auto&& [name, val] : whereAnd) {
+            stm << std::format("{} = '{}'", name, val);
+            if (idx++ < whereAnd.size() - 1) {
+                stm << " AND ";
+            }
+        }
+        
+        auto rows = con_.exec(stm.str());
+        std::vector<std::tuple<T...>> res;
+        res.reserve(rows.size());
+        for (auto&& row : rows) {
+            res.push_back(row_<T...>(row, 0));
+        }
+        return res;
+    }    
 
     template <class... T>
     std::vector<std::tuple<T...>> getAllRows(const std::string& table) {
