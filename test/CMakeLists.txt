@@ -9,18 +9,14 @@ FetchContent_MakeAvailable(googletest)
 add_executable(sqlite_wrapper_test test.cpp)
 set_property(TARGET sqlite_wrapper_test PROPERTY CXX_STANDARD 20)
 set_property(TARGET sqlite_wrapper_test PROPERTY CXX_STANDARD_REQUIRED TRUE)
-
 target_link_libraries(sqlite_wrapper_test PRIVATE sqlite3_wrapper)
 target_link_libraries(sqlite_wrapper_test PRIVATE GTest::gtest_main)
 
 set(TEST_DB_FILE_NAME "test")
-
 set(TEST_DB_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/${TEST_DB_FILE_NAME}.db")
-
 target_compile_definitions(
     sqlite_wrapper_test PRIVATE 
     TEST_DB_FILE_PATH="${TEST_DB_FILE_PATH}")   
-
 add_custom_command(
     TARGET  sqlite_wrapper_test 
     POST_BUILD 

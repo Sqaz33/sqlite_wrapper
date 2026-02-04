@@ -4,7 +4,7 @@
 
 #include <sqlite3.h>
 
-namespace detail__ {
+namespace sqlite3_wrapper::detail__ {
     
 class DBCon {
 public:
@@ -23,4 +23,4 @@ private:
     sqlite3* con_;  
 };
 
-} // namespace detail__
+} // namespace sqlite3_wrapper::detail__

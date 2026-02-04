@@ -17,7 +17,7 @@ int callback(
 
 } // namespace
 
-namespace detail__ {
+namespace sqlite3_wrapper::detail__ {
 
 DBCon::DBCon(const std::filesystem::path& path) {
     auto notOk = sqlite3_open(path.c_str(), &con_);
@@ -49,4 +49,4 @@ DBCon::exec(const std::string& stm) {
     return res;
 }
 
-} // namespace detail__
+} // namespace sqlite3_wrapper::detail__
