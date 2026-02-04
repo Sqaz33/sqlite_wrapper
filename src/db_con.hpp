@@ -1,26 +1,25 @@
 #include <filesystem>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <sqlite3.h>
 
 namespace sqlite3_wrapper::detail__ {
-    
+
 class DBCon {
-public:
+   public:
     DBCon(const std::filesystem::path& path);
 
     ~DBCon();
 
     DBCon(const DBCon&) = delete;
     DBCon& operator=(const DBCon&) = delete;
- 
-public:
-    std::vector<std::vector<std::string>>
-    exec(const std::string& stm);
 
-private:    
-    sqlite3* con_;  
+   public:
+    std::vector<std::vector<std::string>> exec(const std::string& stm);
+
+   private:
+    sqlite3* con_;
 };
 
-} // namespace sqlite3_wrapper::detail__
+}  // namespace sqlite3_wrapper::detail__

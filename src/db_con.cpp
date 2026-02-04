@@ -4,26 +4,23 @@ namespace {
 
 std::vector<std::vector<std::string>> rows;
 
-int callback(
-    void*, int argc, char** argv, char** azColName) 
-{   
+int callback(void*, int argc, char** argv, char** azColName) {
     rows.emplace_back();
     rows.back().reserve(argc);
     for (int i = 0; i < argc; ++i) {
-        rows.back().push_back( argv[i] ? argv[i] : "NULL" );
+        rows.back().push_back(argv[i] ? argv[i] : "NULL");
     }
     return 0;
 }
 
-} // namespace
+}  // namespace
 
 namespace sqlite3_wrapper::detail__ {
 
 DBCon::DBCon(const std::filesystem::path& path) {
     auto notOk = sqlite3_open(path.c_str(), &con_);
     if (notOk) {
-        throw std::runtime_error(
-            "Cant't open DB: " + path.string());
+        throw std::runtime_error("Cant't open DB: " + path.string());
     }
 }
 
@@ -31,13 +28,11 @@ DBCon::~DBCon() {
     sqlite3_close(con_);
 }
 
-std::vector<std::vector<std::string>>
-DBCon::exec(const std::string& stm) {    
+std::vector<std::vector<std::string>> DBCon::exec(const std::string& stm) {
     rows.clear();
 
     char* errMsg = nullptr;
-    int ok = sqlite3_exec(
-            con_, stm.c_str(), callback, nullptr, &errMsg);
+    int ok = sqlite3_exec(con_, stm.c_str(), callback, nullptr, &errMsg);
     if (ok != SQLITE_OK) {
         std::runtime_error re(errMsg);
         sqlite3_free(errMsg);
@@ -49,4 +44,4 @@ DBCon::exec(const std::string& stm) {
     return res;
 }
 
-} // namespace sqlite3_wrapper::detail__
+}  // namespace sqlite3_wrapper::detail__

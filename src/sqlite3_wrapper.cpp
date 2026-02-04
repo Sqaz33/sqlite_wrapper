@@ -1,31 +1,25 @@
 #include "sqlite3_wrapper.hpp"
 
-#include <stdexcept>
 #include <ranges>
 #include <sstream>
+#include <stdexcept>
 
 namespace sqlite3_wrapper {
-DB::DB(const std::filesystem::path& path) :
-    con_(detail__::DBCon(path))
-{}
+DB::DB(const std::filesystem::path& path) : con_(detail__::DBCon(path)) {}
 
 void DB::createTable(
-    const std::string& name, 
-    const std::pair<std::string, std::string>& primaryKey,  
-    const std::vector<std::pair<std::string, std::string>>& entries) 
-{   
+    const std::string& name,
+    const std::pair<std::string, std::string>& primaryKey,
+    const std::vector<std::pair<std::string, std::string>>& entries) {
     std::stringstream stm;
     stm << "CREATE TABLE IF NOT EXISTS ";
     stm << name;
-    
+
     stm << " (";
 
-    stm << primaryKey.first 
-        << ' '
-        << primaryKey.second
-        << " PRIMARY KEY"
+    stm << primaryKey.first << ' ' << primaryKey.second << " PRIMARY KEY"
         << " AUTOINCREMENT";
-    
+
     for (auto&& [name, type] : entries) {
         stm << ", ";
         stm << name << ' ' << type;
@@ -36,11 +30,9 @@ void DB::createTable(
     auto rows = con_.exec(stm.str());
 }
 
-void DB::addRow(
-    const std::string& table,
-    const std::vector<std::string>& columns,
-    const std::vector<std::string>& values)
-{
+void DB::addRow(const std::string& table,
+                const std::vector<std::string>& columns,
+                const std::vector<std::string>& values) {
     std::stringstream stm;
     stm << "INSERT INTO ";
     stm << table;
@@ -65,9 +57,9 @@ void DB::addRow(
         }
     }
     stm << ")";
-    
+
     std::string s = stm.str();
     con_.exec(stm.str());
 }
 
-} // namespace sqlite3_wrapper
+}  // namespace sqlite3_wrapper
