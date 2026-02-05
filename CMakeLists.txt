@@ -6,7 +6,7 @@ project(sqlite3_wrapper)
 
 find_package(SQLite3 REQUIRED)
 
-option(DB_TEST ON)
+# option(DB_TEST ON)
 
 file(GLOB WRAPPER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 add_library(${PROJECT_NAME} SHARED ${WRAPPER_SRC})

@@ -27,7 +27,7 @@ void DB::createTable(
 
     stm << " )";
 
-    auto rows = con_.exec(stm.str());
+    con_.exec(stm.str());
 }
 
 void DB::addRow(const std::string& table,
@@ -59,6 +59,54 @@ void DB::addRow(const std::string& table,
     stm << ")";
 
     std::string s = stm.str();
+    con_.exec(stm.str());
+}
+
+void DB::deleteRows(
+    const std::string& table,
+    const std::vector<std::pair<std::string, std::string>>& whereAnd) {
+    std::stringstream stm;
+    stm << "DELETE FROM ";
+    stm << table;
+    stm << " WHERE ";
+
+    std::size_t idx = 0;
+    for (auto&& [name, val] : whereAnd) {
+        stm << std::format("{} = '{}'", name, val);
+        if (idx++ < whereAnd.size() - 1) {
+            stm << " AND ";
+        }
+    }
+
+    con_.exec(stm.str());
+}
+
+void DB::setValuesInRows(
+    const std::string& table,
+    const std::vector<std::pair<std::string, std::string>>& newValues,
+    const std::vector<std::pair<std::string, std::string>>& whereAnd) {
+    std::stringstream stm;
+    stm << "UPDATE ";
+    stm << table;
+
+    stm << " SET ";
+    std::size_t idx = 0;
+    for (auto&& [name, val] : newValues) {
+        stm << std::format("{} = '{}'", name, val);
+        if (idx++ < newValues.size() - 1) {
+            stm << ", ";
+        }
+    }
+
+    stm << " WHERE ";
+    idx = 0;
+    for (auto&& [name, val] : whereAnd) {
+        stm << std::format("{} = '{}'", name, val);
+        if (idx++ < whereAnd.size() - 1) {
+            stm << " AND ";
+        }
+    }
+
     con_.exec(stm.str());
 }
 

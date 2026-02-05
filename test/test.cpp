@@ -87,7 +87,7 @@ TEST(GettingValue, GettingSpecificRow) {
     db.addRow("table1", {name, value}, {expect1, std::to_string(expect2)});
 
     try {
-        auto res = db.getSpesificRows<int, std::string, int>(
+        auto res = db.getRows<int, std::string, int>(
             table, {{name, expect1}, {value, std::to_string(expect2)}});
         ASSERT_EQ(res.size(), 1);
 
@@ -101,4 +101,66 @@ TEST(GettingValue, GettingSpecificRow) {
     } catch (...) {
         ASSERT_FALSE(true) << "Unknown error";
     }
+}
+
+TEST(DeleteRows, Default) {
+    clearDB();
+    sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);
+
+    std::string table = "table1";
+    std::string name = "name";
+    std::string value = "value";
+
+    db.createTable(
+        table, {std::string("id"), std::string("INTEGER")},
+        {{name, std::string("TEXT")}, {value, std::string("INTEGER")}});
+
+    std::string row1name = "Ivan";
+    int row1value = 10;
+    db.addRow("table1", {name, value}, {row1name, std::to_string(row1value)});
+
+    std::string row2name = "Ivan2";
+    int row2value = 102;
+    db.addRow("table1", {name, value}, {row2name, std::to_string(row2value)});
+
+    EXPECT_NO_THROW(db.deleteRows(
+        table, {{name, row1name}, {value, std::to_string(row1value)}}));
+
+    auto res = db.getAllRows<int, std::string, int>(table);
+    EXPECT_EQ(res.size(), 1);
+
+    auto&& [_, actualRow2name, actualRow2value] = res[0];
+    EXPECT_EQ(actualRow2name, row2name);
+    EXPECT_EQ(actualRow2value, row2value);
+}
+
+TEST(SetValues, Default) {
+    clearDB();
+    sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);
+
+    std::string table = "table1";
+    std::string name = "name";
+    std::string value = "value";
+
+    db.createTable(
+        table, {std::string("id"), std::string("INTEGER")},
+        {{name, std::string("TEXT")}, {value, std::string("INTEGER")}});
+
+    std::string curName = "Ivan";
+    int curValue = 102;
+    db.addRow("table1", {name, value}, {curName, std::to_string(curValue)});
+
+    std::string expectName = "New Ivan";
+    int expectValue = 103;
+
+    EXPECT_NO_THROW(db.setValuesInRows(
+        table, {{name, expectName}, {value, std::to_string(expectValue)}},
+        {{name, curName}}));
+
+    auto res = db.getAllRows<int, std::string, int>(table);
+    EXPECT_EQ(res.size(), 1);
+
+    auto&& [_, actualName, actualValue] = res[0];
+    EXPECT_EQ(actualName, expectName);
+    EXPECT_EQ(actualValue, expectValue);
 }

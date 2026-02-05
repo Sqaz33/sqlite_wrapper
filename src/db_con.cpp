@@ -29,8 +29,6 @@ DBCon::~DBCon() {
 }
 
 std::vector<std::vector<std::string>> DBCon::exec(const std::string& stm) {
-    rows.clear();
-
     char* errMsg = nullptr;
     int ok = sqlite3_exec(con_, stm.c_str(), callback, nullptr, &errMsg);
     if (ok != SQLITE_OK) {

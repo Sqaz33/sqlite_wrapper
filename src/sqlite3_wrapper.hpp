@@ -22,7 +22,7 @@ class DB {
         const std::vector<std::pair<std::string, std::string>>& entries);
 
     template <class... T>
-    std::vector<std::tuple<T...>> getSpesificRows(
+    std::vector<std::tuple<T...>> getRows(
         const std::string& table,
         const std::vector<std::pair<std::string, std::string>>& whereAnd) {
         std::stringstream stm;
@@ -62,11 +62,18 @@ class DB {
                 const std::vector<std::string>& columns,
                 const std::vector<std::string>& values);
 
-    void deleteRow();
+    void deleteRows(
+        const std::string& table,
+        const std::vector<std::pair<std::string, std::string>>& whereAnd);
+
+    void setValuesInRows(
+        const std::string& table,
+        const std::vector<std::pair<std::string, std::string>>& newValues,
+        const std::vector<std::pair<std::string, std::string>>& whereAnd);
 
    private:
     template <class T>
-    T convert(const std::string& x) {
+    static T convert_(const std::string& x) {
         if constexpr (std::is_same_v<T, int>) {
             return std::stoi(x);
         } else if constexpr (std::is_same_v<T, std::string>) {
@@ -79,7 +86,7 @@ class DB {
     template <class... U>
     std::tuple<U...> row_(const std::vector<std::string>& row) {
         auto it = row.rbegin();
-        return std::tuple<U...>(convert<U>(*(it++))...);
+        return std::tuple<U...>(convert_<U>(*(it++))...);
     }
 
    private:
