@@ -129,6 +129,25 @@ TEST(GettingValue, GettingSpecificRow) {
     }
 }
 
+TEST(GettingValues, ExistsRow) {
+    clearDB();
+    sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);
+
+    std::string table = "table1";
+    std::string name = "name";
+    std::string value = "value";
+
+    db.createTable(
+        table, {std::string("id"), std::string("INTEGER")},
+        {{name, std::string("TEXT")}, {value, std::string("INTEGER")}});
+
+    std::string curName = "Ivan";
+    int curValue = 102;
+    db.addRow("table1", {name, value}, {curName, std::to_string(curValue)});
+
+    EXPECT_TRUE(db.atLeastOneRowExists(table, {{name, curName}}));
+}
+
 TEST(DeleteRows, Default) {
     clearDB();
     sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);

@@ -11,8 +11,7 @@ void DB::createTable(
     const std::string& name,
     const std::pair<std::string, std::string>& primaryKey,
     const std::vector<std::pair<std::string, std::string>>& entries,
-    const std::map<std::string, std::string> defaultValues) 
-{
+    const std::map<std::string, std::string> defaultValues) {
     std::stringstream stm;
     stm << "CREATE TABLE IF NOT EXISTS ";
     stm << name;
@@ -26,7 +25,7 @@ void DB::createTable(
         stm << ", ";
         stm << name << ' ' << type;
         if (defaultValues.contains(name)) {
-            stm << " DEFAULT "; 
+            stm << " DEFAULT ";
             stm << '\'';
             stm << defaultValues.at(name);
             stm << '\'';
@@ -122,6 +121,26 @@ void DB::setValuesInRows(
     }
 
     con_.exec(stm.str());
+}
+
+bool DB::atLeastOneRowExists(
+    const std::string& table,
+    const std::vector<std::pair<std::string, std::string>>& whereAnd) {
+    std::stringstream stm;
+    stm << "SELECT * FROM ";
+    stm << table;
+
+    stm << " WHERE ";
+    std::size_t idx = 0;
+    for (auto&& [name, val] : whereAnd) {
+        stm << std::format("{} = '{}'", name, val);
+        if (idx++ < whereAnd.size() - 1) {
+            stm << " AND ";
+        }
+    }
+
+    auto rows = con_.exec(stm.str());
+    return !rows.empty();
 }
 
 }  // namespace sqlite3_wrapper

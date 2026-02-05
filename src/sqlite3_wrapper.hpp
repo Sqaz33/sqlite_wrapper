@@ -2,11 +2,11 @@
 
 #include <filesystem>
 #include <format>
+#include <map>
 #include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <map>
 
 #include "db_con.hpp"
 
@@ -71,6 +71,10 @@ class DB {
     void setValuesInRows(
         const std::string& table,
         const std::vector<std::pair<std::string, std::string>>& newValues,
+        const std::vector<std::pair<std::string, std::string>>& whereAnd);
+
+    bool atLeastOneRowExists(
+        const std::string& table,
         const std::vector<std::pair<std::string, std::string>>& whereAnd);
 
    private:
