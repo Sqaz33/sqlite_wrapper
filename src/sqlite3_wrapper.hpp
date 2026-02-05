@@ -1,11 +1,11 @@
 #pragma once
 
 #include <filesystem>
+#include <format>
 #include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
-#include <format>
 
 #include "db_con.hpp"
 
@@ -21,12 +21,10 @@ class DB {
         const std::pair<std::string, std::string>& primaryKey,
         const std::vector<std::pair<std::string, std::string>>& entries);
 
-    template <class ... T>
-    std::vector<std::tuple<T...>>
-    getSpesificRows(
+    template <class... T>
+    std::vector<std::tuple<T...>> getSpesificRows(
         const std::string& table,
-        const std::vector<std::pair<std::string, std::string>>& whereAnd)
-    {
+        const std::vector<std::pair<std::string, std::string>>& whereAnd) {
         std::stringstream stm;
         stm << "SELECT * FROM ";
         stm << table;
@@ -39,15 +37,15 @@ class DB {
                 stm << " AND ";
             }
         }
-        
+
         auto rows = con_.exec(stm.str());
         std::vector<std::tuple<T...>> res;
         res.reserve(rows.size());
         for (auto&& row : rows) {
-            res.push_back(row_<T...>(row, 0));
+            res.push_back(row_<T...>(row));
         }
         return res;
-    }    
+    }
 
     template <class... T>
     std::vector<std::tuple<T...>> getAllRows(const std::string& table) {
@@ -55,7 +53,7 @@ class DB {
         std::vector<std::tuple<T...>> res;
         res.reserve(rows.size());
         for (auto&& row : rows) {
-            res.push_back(row_<T...>(row, 0));
+            res.push_back(row_<T...>(row));
         }
         return res;
     }
@@ -64,25 +62,24 @@ class DB {
                 const std::vector<std::string>& columns,
                 const std::vector<std::string>& values);
 
+    void deleteRow();
+
    private:
     template <class T>
-    std::tuple<T> row_(const std::vector<std::string>& rows, int idx) {
-        auto&& val = rows[idx];
+    T convert(const std::string& x) {
         if constexpr (std::is_same_v<T, int>) {
-            return std::tuple<int>(std::stoi(val));
+            return std::stoi(x);
         } else if constexpr (std::is_same_v<T, std::string>) {
-            return std::tuple<std::string>(val);
-        } else if constexpr (true) {
+            return x;
+        } else {
             static_assert(false && "The type is not supported");
         }
     }
 
-    template <class T, class... U>
-        requires(sizeof...(U) > 0)
-    std::tuple<T, U...> row_(const std::vector<std::string>& rows, int idx) {
-        auto r1 = row_<T>(rows, idx++);
-        auto r2 = row_<U...>(rows, idx);
-        return std::tuple_cat(std::move(r1), std::move(r2));
+    template <class... U>
+    std::tuple<U...> row_(const std::vector<std::string>& row) {
+        auto it = row.rbegin();
+        return std::tuple<U...>(convert<U>(*(it++))...);
     }
 
    private:

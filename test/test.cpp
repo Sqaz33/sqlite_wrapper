@@ -8,7 +8,7 @@
 
 #ifndef TEST_DB_FILE_PATH
 #error "It is necessary to declare"
-        " the file name of the test db"
+" the file name of the test db"
 #endif
 
     static void
@@ -70,7 +70,6 @@ TEST(GettingValue, DefaultGetting) {
     }
 }
 
-
 TEST(GettingValue, GettingSpecificRow) {
     clearDB();
     sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);
@@ -82,16 +81,16 @@ TEST(GettingValue, GettingSpecificRow) {
     std::string expect1 = "Ivan";
     int expect2 = 10;
 
-    
-    db.createTable(table, {std::string("id"), std::string("INTEGER")},
-                   {{name, std::string("TEXT")}, {value, std::string("INTEGER")}});
+    db.createTable(
+        table, {std::string("id"), std::string("INTEGER")},
+        {{name, std::string("TEXT")}, {value, std::string("INTEGER")}});
     db.addRow("table1", {name, value}, {expect1, std::to_string(expect2)});
 
     try {
         auto res = db.getSpesificRows<int, std::string, int>(
             table, {{name, expect1}, {value, std::to_string(expect2)}});
         ASSERT_EQ(res.size(), 1);
-        
+
         auto&& [_, actual1, actual2] = res[0];
 
         EXPECT_EQ(actual1, expect1);
@@ -102,5 +101,4 @@ TEST(GettingValue, GettingSpecificRow) {
     } catch (...) {
         ASSERT_FALSE(true) << "Unknown error";
     }
-    
 }
