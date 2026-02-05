@@ -35,6 +35,32 @@ TEST(TableCreation, NoExceptTableCreation) {
                        {{std::string("name"), std::string("TEXT")}}));
 }
 
+TEST(TableCreation, WithDefaultValue) {
+    clearDB();
+    sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);
+
+    std::string table = "table1";
+    std::string name = "name";
+
+    std::string expectValue = "Ivan";
+
+    db.createTable(table, {std::string("id"), std::string("INTEGER")},
+                   {{name, std::string("TEXT")}}, {{name, expectValue}});
+    db.addRow("table1");
+
+    try {
+        auto res = db.getAllRows<int, std::string>(table);
+        ASSERT_TRUE(res.size() == 1);
+        auto actualValue = std::get<1>(res[0]);
+        ASSERT_EQ(actualValue, expectValue);
+
+    } catch (const std::exception& e) {
+        ASSERT_FALSE(true) << e.what();
+    } catch (...) {
+        ASSERT_FALSE(true) << "Unknown error";
+    }
+}
+
 TEST(ValueInsertion, DefaultInsertion) {
     clearDB();
     sqlite3_wrapper::DB db(TEST_DB_FILE_PATH);

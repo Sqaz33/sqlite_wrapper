@@ -10,7 +10,9 @@ DB::DB(const std::filesystem::path& path) : con_(detail__::DBCon(path)) {}
 void DB::createTable(
     const std::string& name,
     const std::pair<std::string, std::string>& primaryKey,
-    const std::vector<std::pair<std::string, std::string>>& entries) {
+    const std::vector<std::pair<std::string, std::string>>& entries,
+    const std::map<std::string, std::string> defaultValues) 
+{
     std::stringstream stm;
     stm << "CREATE TABLE IF NOT EXISTS ";
     stm << name;
@@ -23,6 +25,12 @@ void DB::createTable(
     for (auto&& [name, type] : entries) {
         stm << ", ";
         stm << name << ' ' << type;
+        if (defaultValues.contains(name)) {
+            stm << " DEFAULT "; 
+            stm << '\'';
+            stm << defaultValues.at(name);
+            stm << '\'';
+        }
     }
 
     stm << " )";
@@ -37,26 +45,32 @@ void DB::addRow(const std::string& table,
     stm << "INSERT INTO ";
     stm << table;
 
-    stm << " (";
-    std::size_t idx = 0;
-    for (auto n : columns) {
-        stm << n;
-        if (idx++ < columns.size() - 1) {
-            stm << ", ";
+    if (!columns.empty()) {
+        stm << " (";
+        std::size_t idx = 0;
+        for (auto n : columns) {
+            stm << n;
+            if (idx++ < columns.size() - 1) {
+                stm << ", ";
+            }
         }
+        stm << ")";
     }
-    stm << ")";
 
-    stm << " VALUES";
-    stm << " (";
-    idx = 0;
-    for (auto n : values) {
-        stm << '\'' << n << '\'';
-        if (idx++ < values.size() - 1) {
-            stm << ", ";
+    if (!values.empty()) {
+        stm << " VALUES";
+        stm << " (";
+        std::size_t idx = 0;
+        for (auto n : values) {
+            stm << '\'' << n << '\'';
+            if (idx++ < values.size() - 1) {
+                stm << ", ";
+            }
         }
+        stm << ")";
+    } else {
+        stm << " DEFAULT VALUES";
     }
-    stm << ")";
 
     std::string s = stm.str();
     con_.exec(stm.str());

@@ -6,6 +6,7 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+#include <map>
 
 #include "db_con.hpp"
 
@@ -19,7 +20,8 @@ class DB {
     void createTable(
         const std::string& name,
         const std::pair<std::string, std::string>& primaryKey,
-        const std::vector<std::pair<std::string, std::string>>& entries);
+        const std::vector<std::pair<std::string, std::string>>& entries,
+        const std::map<std::string, std::string> defaultValues = {});
 
     template <class... T>
     std::vector<std::tuple<T...>> getRows(
@@ -59,8 +61,8 @@ class DB {
     }
 
     void addRow(const std::string& table,
-                const std::vector<std::string>& columns,
-                const std::vector<std::string>& values);
+                const std::vector<std::string>& columns = {},
+                const std::vector<std::string>& values = {});
 
     void deleteRows(
         const std::string& table,
