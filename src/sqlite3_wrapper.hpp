@@ -80,6 +80,8 @@ class DB {
             return std::stoi(x);
         } else if constexpr (std::is_same_v<T, std::string>) {
             return x;
+        } else if constexpr (std::is_same_v<T, bool>) {
+            return x.front() == 'T';
         } else {
             static_assert(false && "The type is not supported");
         }
